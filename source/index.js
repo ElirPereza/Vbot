@@ -19,11 +19,13 @@ const VBot = async () => {
     // Open a new page
     const page = await browser.newPage();
 
+    await page.setDefaultNavigationTimeout(0)
     // On this new page:
     // - open the "http://quotes.toscrape.com/" website
     // - wait until the dom content is loaded (HTML is ready)
     await page.goto("https://ais.usvisa-info.com/es-mx/niv/users/sign_in", {
-        waitUntil: "domcontentloaded",
+        waitUntil: "domcontentloaded"
+        
     });
 
 
@@ -44,7 +46,6 @@ const VBot = async () => {
     //  ESPERAR A QUE LA PAGINA CARGUE
 
     await page.waitForNavigation({ waitUntil: 'domcontentloaded' });
-    await page.waitForNavigation(5000);
 
     // const element = await page.waitForSelector('//*[@id="forms"]/ul/li[3]');
     // await element.click();
