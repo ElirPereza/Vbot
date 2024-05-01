@@ -12,7 +12,7 @@ const VBot = async () => {
     // - no default viewport (`defaultViewport: null` - website page will in full width and height)
     const browser = await puppeteer.launch({
         headless: false,
-        defaultViewport: null,
+        defaultViewport: false,
         slowMo: 2
     });
 
@@ -25,7 +25,8 @@ const VBot = async () => {
     // - wait until the dom content is loaded (HTML is ready)
     await page.goto("https://ais.usvisa-info.com/es-mx/niv/users/sign_in", {
         waitUntil: "domcontentloaded"
-        
+        // timeout: 0
+
     });
 
 
@@ -36,34 +37,31 @@ const VBot = async () => {
     await page.keyboard.press('Enter')
 
     //  ESPERAR A QUE LA PAGINA CARGUE
-    await page.waitForNavigation({ waitUntil: 'domcontentloaded' });
+    await Promise.all([
+        page.waitForNavigation(), // Esperar a que la página se cargue completamente después del inicio de sesión
+        await page.keyboard.press('Enter')
+    ]);
+
+    //AQUI EMPIEZA LA NAVEGACION DESPUES DE INCIAR SESSION
+    await Promise.all([
+        page.waitForNavigation(),
+        await page.click('a[href="/es-mx/niv/schedule/57058704/continue_actions"]')
+    ]);
+
+    //SELECCIONAR OPCION DE CAMBIAR FECHA
+    await Promise.all([
+        page.waitForNavigation(),
+        page.click('#forms > ul > li:nth-child(3)'),
+        await page.click('a[href="/es-mx/niv/schedule/57058704/appointment"]')
+    ]);
 
 
-    //NAVEGACION DESPUES DE INCIAR SESION
-
-    await page.click('a[href="/es-mx/niv/schedule/57058704/continue_actions"]')
-
-    //  ESPERAR A QUE LA PAGINA CARGUE
-
-    await page.waitForNavigation({ waitUntil: 'domcontentloaded' });
-
-    // const element = await page.waitForSelector('//*[@id="forms"]/ul/li[3]');
-    // await element.click();
-    await page.evaluate(() => {
-        document.querySelectorAll('.accordion-item')[2].querySelector('.accordion-title').click();
-      });
-      // Esperar 4 segundos antes de hacer clic en el enlace de Reprogramar cita
-  await page.waitForTimeout(4000);
-
-      await page.evaluate(() => {
-        document.querySelector('a[href="/es-mx/niv/schedule/57058704/appointment"]').click();
-      });
-
-
-
-
-
-
+    //REAGENDAR CITA
+    await Promise.all([
+        await page.waitForSelector('#appointments_consulate_appointment_facility_id'),
+        await page.select('#appointments_consulate_appointment_facility_id', '67'),
+        // page.click('#appointments_consulate_appointment_date_input > a')
+    ]);
 
 
 
